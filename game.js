@@ -122,4 +122,4 @@ ui.restartButton.onclick=resetGame; ui.avatarButton.ondblclick=activatePower; ui
 addEventListener("keydown",e=>{ if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefault(); keys[e.code]=true; if(!running && ["Space","ArrowUp","ArrowLeft","ArrowRight","KeyA","KeyD","KeyW"].includes(e.code)) running = true; if(e.code==="KeyE") activatePower(); }); addEventListener("keyup",e=>keys[e.code]=false);
 [["leftBtn","ArrowLeft"],["rightBtn","ArrowRight"],["downBtn","ArrowDown"],["jumpBtn","Space"]].forEach(([id,code])=>{ const b=document.getElementById(id); b.onpointerdown=e=>{e.preventDefault(); running = true; keys[code]=true;}; b.onpointerup=b.onpointercancel=()=>keys[code]=false; });
 canvas.addEventListener("pointerdown",()=>canvas.focus());
-applyLanguage("en"); resetGame(); draw();
+applyLanguage("en"); resetGame(); requestAnimationFrame(loop);
