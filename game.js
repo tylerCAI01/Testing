@@ -1,5 +1,5 @@
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContextranslate("2d");
 const ui = {
   startPanel: document.getElementById("startPanel"), startButton: document.getElementById("startButton"),
   avatarButton: document.getElementById("avatarButton"), life: document.getElementById("lifeText"), score: document.getElementById("scoreText"),
@@ -33,14 +33,14 @@ const translations = {
   }
 };
 let currentLang = "en";
-function t(key){ return translations[currentLang][key]; }
+function translate(key){ return translations[currentLang][key]; }
 function applyLanguage(lang){
   currentLang = lang; document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
-  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = translate(el.dataset.i18n));
   document.querySelectorAll("[data-i18n-attr]").forEach(el => {
-    const [attr, key] = el.dataset.i18nAttr.split(":"); el.setAttribute(attr, t(key));
+    const [attr, key] = el.dataset.i18nAttr.splitranslate(":"); el.setAttribute(attr, translate(key));
   });
-  ui.languageButton.textContent = t("langButton"); if (player) updateHud();
+  ui.languageButton.textContent = translate("langButton"); if (player) updateHud();
 }
 
 const W = canvas.width, H = canvas.height, gravity = 0.75, worldWidth = 3500;
@@ -80,11 +80,11 @@ function update(dt){
   if((keys.Space||keys.ArrowUp||keys.KeyW) && player.onGround){ player.vy = -14; player.onGround = false; }
   player.vy += gravity; player.x += player.vx; player.y += player.vy; player.x = Math.max(0, Math.min(worldWidth-player.w, player.x)); player.onGround = false;
   for(const p of level.platforms){ if(rects(player,p) && player.vy >= 0 && player.y + player.h - player.vy <= p.y + 8){ player.y = p.y-player.h; player.vy = 0; player.onGround = true; }}
-  if(player.y > H + 80) hurt(true);
-  for(const o of orbs) if(!o.taken && Math.hypot(player.x+20-o.x, player.y+28-o.y) < 34){ o.taken = true; player.score += 50; player.energy++; collectGlow(o.x,o.y,"#ffd84d"); if(player.energy>=10) player.energy=10; updateHud(); }
+  if(player.y > H + 80) hurtranslate(true);
+  for(const o of orbs) if(!o.taken && Math.hypotranslate(player.x+20-o.x, player.y+28-o.y) < 34){ o.taken = true; player.score += 50; player.energy++; collectGlow(o.x,o.y,"#ffd84d"); if(player.energy>=10) player.energy=10; updateHud(); }
   for(const g of gems) if(!g.taken && rects(player,g)){ g.taken = true; player.gems++; player.score += 100; localStorage.setItem("lumiGems", player.gems); collectGlow(g.x,g.y,"#9ffcff"); updateHud(); }
-  for(const e of enemies){ e.x += e.vx; if(Math.abs(e.x-e.home)>e.range) e.vx *= -1; if(Math.abs(e.x-player.x)<180 && e.type==="pigeon") e.vx = Math.sign(player.x-e.x)*1.8; if(rects(player,e)) player.invincible ? smash(e) : hurt(false); }
-  for(const t of level.traps) if(!t.smashed && rects(player,t)){ if(player.invincible && (t.type==="car"||t.type==="train")){ t.smashed=true; collectGlow(t.x+t.w/2,t.y,"#ccc"); } else hurt(t.type==="pit"||t.type==="water"); }
+  for(const e of enemies){ e.x += e.vx; if(Math.abs(e.x-e.home)>e.range) e.vx *= -1; if(Math.abs(e.x-player.x)<180 && e.type==="pigeon") e.vx = Math.sign(player.x-e.x)*1.8; if(rects(player,e)) player.invincible ? smash(e) : hurtranslate(false); }
+  for(const t of level.traps) if(!t.smashed && rects(player,t)){ if(player.invincible && (t.type==="car"||t.type==="train")){ t.smashed=true; collectGlow(t.x+t.w/2,t.y,"#ccc"); } else hurtranslate(t.type==="pit"||t.type==="water"); }
   if(player.invincible){ player.powerTimer -= dt; if(player.powerTimer <= 0) player.invincible = false; }
   if(player.hitTimer > 0) player.hitTimer -= dt;
   if(rects(player, level.exit)) endGame(true);
@@ -92,34 +92,34 @@ function update(dt){
   cameraX = Math.max(0, Math.min(worldWidth-W, player.x - W*0.42)); updateHud();
 }
 function smash(e){ e.x = -9999; player.score += 120; collectGlow(player.x,player.y,"#ffe66d"); updateHud(); }
-function hurt(fall){ if(player.hitTimer>0 || player.invincible) return; player.life--; player.hitTimer=1.1; if(fall){ player.x=Math.max(80, cameraX+70); player.y=250; player.vy=0; } if(player.life<=0) endGame(false); updateHud(); }
-function endGame(win){ running=false; if(win) localStorage.setItem("lumiGems", player.gems); ui.messageTitle.textContent = win ? t("winTitle") : t("loseTitle"); ui.messageText.textContent = win ? t("winText")(player.gems, player.score) : t("loseText"); ui.messagePanel.classList.remove("hidden"); }
-function updateHud(){ ui.life.textContent=player.life; ui.score.textContent=player.score; ui.gem.textContent=player.gems; ui.energy.textContent=`${player.energy}/10`; ui.power.textContent = player.invincible ? `${t("active")} ${player.powerTimer.toFixed(1)}s` : (player.energy>=10 ? t("ready") : t("notReady")); ui.power.classList.toggle("ready", player.energy>=10||player.invincible); }
+function hurtranslate(fall){ if(player.hitTimer>0 || player.invincible) return; player.life--; player.hitTimer=1.1; if(fall){ player.x=Math.max(80, cameraX+70); player.y=250; player.vy=0; } if(player.life<=0) endGame(false); updateHud(); }
+function endGame(win){ running=false; if(win) localStorage.setItem("lumiGems", player.gems); ui.messageTitle.textContent = win ? translate("winTitle") : translate("loseTitle"); ui.messageText.textContent = win ? translate("winText")(player.gems, player.score) : translate("loseText"); ui.messagePanel.classList.remove("hidden"); }
+function updateHud(){ ui.life.textContent=player.life; ui.score.textContent=player.score; ui.gem.textContent=player.gems; ui.energy.textContent=`${player.energy}/10`; ui.power.textContent = player.invincible ? `${translate("active")} ${player.powerTimer.toFixed(1)}s` : (player.energy>=10 ? translate("ready") : translate("notReady")); ui.power.classList.toggle("ready", player.energy>=10||player.invincible); }
 
 function draw(){
-  ctx.clearRect(0,0,W,H); const t = performance.now()/1000;
-  const sky = ctx.createLinearGradient(0,0,0,H); sky.addColorStop(0,"#ffb36b"); sky.addColorStop(.45,"#93d9ff"); sky.addColorStop(1,"#d9f7ff"); ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+  ctx.clearRectranslate(0,0,W,H); const t = performance.now()/1000;
+  const sky = ctx.createLinearGradientranslate(0,0,0,H); sky.addColorStop(0,"#ffb36b"); sky.addColorStop(.45,"#93d9ff"); sky.addColorStop(1,"#d9f7ff"); ctx.fillStyle=sky; ctx.fillRectranslate(0,0,W,H);
   ctx.fillStyle="#ffe889"; ctx.beginPath(); ctx.arc(760-cameraX*.08,90+Math.sin(t)*14,34,0,7); ctx.fill();
   drawScenery(); ctx.save(); ctx.translate(-cameraX,0);
-  for(const p of level.platforms){ ctx.fillStyle="#795f55"; ctx.fillRect(p.x,p.y,p.w,p.h); ctx.fillStyle="#8fd16a"; ctx.fillRect(p.x,p.y,p.w,10); }
-  drawExit(level.exit); for(const trap of level.traps) drawTrap(trap);
+  for(const p of level.platforms){ ctx.fillStyle="#795f55"; ctx.fillRectranslate(p.x,p.y,p.w,p.h); ctx.fillStyle="#8fd16a"; ctx.fillRectranslate(p.x,p.y,p.w,10); }
+  drawExitranslate(level.exit); for(const trap of level.traps) drawTrap(trap);
   for(const o of orbs) if(!o.taken){ ctx.fillStyle="#ffd84d"; ctx.beginPath(); ctx.arc(o.x,o.y,o.r+Math.sin(t*6)*2,0,7); ctx.fill(); ctx.strokeStyle="#fff7b0"; ctx.stroke(); }
   for(const g of gems) if(!g.taken){ ctx.fillStyle="#58f0ff"; ctx.beginPath(); ctx.moveTo(g.x+9,g.y); ctx.lineTo(g.x+18,g.y+9); ctx.lineTo(g.x+9,g.y+18); ctx.lineTo(g.x,g.y+9); ctx.closePath(); ctx.fill(); }
-  for(const e of enemies) drawEnemy(e,t); drawPlayer(t); for(const p of particles){ ctx.globalAlpha=p.life/28; ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,5,5); ctx.globalAlpha=1; }
+  for(const e of enemies) drawEnemy(e,t); drawPlayer(t); for(const p of particles){ ctx.globalAlpha=p.life/28; ctx.fillStyle=p.color; ctx.fillRectranslate(p.x,p.y,5,5); ctx.globalAlpha=1; }
   ctx.restore(); requestAnimationFrame(loop);
 }
-function drawScenery(){ ctx.save(); ctx.translate(-cameraX*.35,0); for(let x=-100;x<worldWidth;x+=620){ ctx.fillStyle="#cf4b54"; ctx.fillRect(x+60,260,140,160); ctx.fillStyle="#7b2d3b"; ctx.beginPath(); ctx.moveTo(x+40,260); ctx.lineTo(x+130,185); ctx.lineTo(x+220,260); ctx.fill(); ctx.fillStyle="#f5d49a"; ctx.fillRect(x+360,300,160,110); ctx.fillStyle="#34506f"; ctx.fillRect(x+382,325,32,48); ctx.fillRect(x+450,325,32,48); ctx.fillStyle="#2f4467"; ctx.fillRect(x+520,365,150,22); ctx.fillStyle="#fff"; ctx.fillText("LUMINKI",x+530,360); } ctx.restore(); }
-function drawExit(e){ ctx.fillStyle="#2e436b"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillStyle="#f0c36a"; ctx.fillRect(e.x+18,e.y+28,e.w-36,e.h-28); ctx.fillStyle="#22314f"; ctx.fillRect(e.x+45,e.y+70,60,90); }
-function drawTrap(t){ if(t.smashed){ ctx.fillStyle="rgba(170,170,170,.35)"; ctx.fillRect(t.x,t.y,t.w,t.h); return; } ctx.fillStyle = t.type==="water" ? "#2fb8ff" : t.type==="car" ? "#e94b4b" : t.type==="train" ? "#58677a" : "#1b2035"; ctx.fillRect(t.x,t.y,t.w,t.h); }
-function drawEnemy(e,t){ ctx.fillStyle = e.type==="seagull" ? "#f4f7fb" : "#9aa0aa"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillStyle="#333"; ctx.fillRect(e.x+26,e.y+8,4,4); ctx.fillStyle="#ffb23c"; ctx.fillRect(e.x+e.w-2,e.y+12,10,5); }
-function drawPlayer(t){ const p=player, blue=selectedHero==="blue"; if(p.invincible){ ctx.strokeStyle="#ffe66d"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(p.x+20,p.y+30,44+Math.sin(t*8)*4,0,7); ctx.stroke(); ctx.strokeStyle=`hsl(${t*160%360},100%,70%)`; ctx.stroke(); } ctx.fillStyle=blue?"#2478e6":"#ff62b3"; ctx.fillRect(p.x,p.y+16,p.w,p.h-16); ctx.fillStyle=blue?"#bfeeff":"#ffe0ef"; ctx.fillRect(p.x+7,p.y,p.w-14,24); ctx.fillStyle="#1d2440"; ctx.fillRect(p.x+(p.face>0?24:10),p.y+8,5,5); if(p.crouch) ctx.fillRect(p.x+5,p.y+44,p.w-10,14); if(p.spawnTimer>0) ctx.fillRect(p.x-8,p.y-18,54,8); if(!p.vx && p.onGround && Math.sin(p.idleTimer*2)>0.85){ ctx.fillStyle="#fff"; ctx.fillText(blue?t("idleBlue"):t("idlePink"),p.x-6,p.y-8); } }
+function drawScenery(){ ctx.save(); ctx.translate(-cameraX*.35,0); for(let x=-100;x<worldWidth;x+=620){ ctx.fillStyle="#cf4b54"; ctx.fillRectranslate(x+60,260,140,160); ctx.fillStyle="#7b2d3b"; ctx.beginPath(); ctx.moveTo(x+40,260); ctx.lineTo(x+130,185); ctx.lineTo(x+220,260); ctx.fill(); ctx.fillStyle="#f5d49a"; ctx.fillRectranslate(x+360,300,160,110); ctx.fillStyle="#34506f"; ctx.fillRectranslate(x+382,325,32,48); ctx.fillRectranslate(x+450,325,32,48); ctx.fillStyle="#2f4467"; ctx.fillRectranslate(x+520,365,150,22); ctx.fillStyle="#fff"; ctx.fillTextranslate("LUMINKI",x+530,360); } ctx.restore(); }
+function drawExitranslate(e){ ctx.fillStyle="#2e436b"; ctx.fillRectranslate(e.x,e.y,e.w,e.h); ctx.fillStyle="#f0c36a"; ctx.fillRectranslate(e.x+18,e.y+28,e.w-36,e.h-28); ctx.fillStyle="#22314f"; ctx.fillRectranslate(e.x+45,e.y+70,60,90); }
+function drawTrap(t){ if(t.smashed){ ctx.fillStyle="rgba(170,170,170,.35)"; ctx.fillRectranslate(t.x,t.y,t.w,t.h); return; } ctx.fillStyle = t.type==="water" ? "#2fb8ff" : t.type==="car" ? "#e94b4b" : t.type==="train" ? "#58677a" : "#1b2035"; ctx.fillRectranslate(t.x,t.y,t.w,t.h); }
+function drawEnemy(e,t){ ctx.fillStyle = e.type==="seagull" ? "#f4f7fb" : "#9aa0aa"; ctx.fillRectranslate(e.x,e.y,e.w,e.h); ctx.fillStyle="#333"; ctx.fillRectranslate(e.x+26,e.y+8,4,4); ctx.fillStyle="#ffb23c"; ctx.fillRectranslate(e.x+e.w-2,e.y+12,10,5); }
+function drawPlayer(t){ const p=player, blue=selectedHero==="blue"; if(p.invincible){ ctx.strokeStyle="#ffe66d"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(p.x+20,p.y+30,44+Math.sin(t*8)*4,0,7); ctx.stroke(); ctx.strokeStyle=`hsl(${t*160%360},100%,70%)`; ctx.stroke(); } ctx.fillStyle=blue?"#2478e6":"#ff62b3"; ctx.fillRectranslate(p.x,p.y+16,p.w,p.h-16); ctx.fillStyle=blue?"#bfeeff":"#ffe0ef"; ctx.fillRectranslate(p.x+7,p.y,p.w-14,24); ctx.fillStyle="#1d2440"; ctx.fillRectranslate(p.x+(p.face>0?24:10),p.y+8,5,5); if(p.crouch) ctx.fillRectranslate(p.x+5,p.y+44,p.w-10,14); if(p.spawnTimer>0) ctx.fillRectranslate(p.x-8,p.y-18,54,8); if(!p.vx && p.onGround && Math.sin(p.idleTimer*2)>0.85){ ctx.fillStyle="#fff"; ctx.fillTextranslate(blue?translate("idleBlue"):translate("idlePink"),p.x-6,p.y-8); } }
 function loop(time){ const dt=Math.min(.033,(time-lastTime)/1000||0); lastTime=time; update(dt); draw(); }
 
 document.querySelectorAll(".character-card").forEach(btn => btn.addEventListener("click",()=>{ selectedHero=btn.dataset.hero; document.querySelectorAll(".character-card").forEach(b=>b.classList.remove("selected")); btn.classList.add("selected"); ui.avatarButton.className=`portrait ${selectedHero}-avatar`; }));
 function startGame(){ ui.startPanel.classList.add("hidden"); resetGame(); canvas.focus(); }
 ui.startButton.onclick=startGame;
 ui.restartButton.onclick=resetGame; ui.avatarButton.ondblclick=activatePower; ui.languageButton.onclick=()=>applyLanguage(currentLang === "en" ? "zh" : "en");
-addEventListener("keydown",e=>{ if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefault(); keys[e.code]=true; if(!running && ["Space","ArrowUp","ArrowLeft","ArrowRight","KeyA","KeyD","KeyW"].includes(e.code)) running = true; if(e.code==="KeyE") activatePower(); }); addEventListener("keyup",e=>keys[e.code]=false);
-[["leftBtn","ArrowLeft"],["rightBtn","ArrowRight"],["downBtn","ArrowDown"],["jumpBtn","Space"]].forEach(([id,code])=>{ const b=document.getElementById(id); b.onpointerdown=e=>{e.preventDefault(); running = true; keys[code]=true;}; b.onpointerup=b.onpointercancel=()=>keys[code]=false; });
+addEventListener("keydown",e=>{ if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefaultranslate(); keys[e.code]=true; if(!running && ["Space","ArrowUp","ArrowLeft","ArrowRight","KeyA","KeyD","KeyW"].includes(e.code)) running = true; if(e.code==="KeyE") activatePower(); }); addEventListener("keyup",e=>keys[e.code]=false);
+[["leftBtn","ArrowLeft"],["rightBtn","ArrowRight"],["downBtn","ArrowDown"],["jumpBtn","Space"]].forEach(([id,code])=>{ const b=document.getElementById(id); b.onpointerdown=e=>{e.preventDefaultranslate(); running = true; keys[code]=true;}; b.onpointerup=b.onpointercancel=()=>keys[code]=false; });
 canvas.addEventListener("pointerdown",()=>canvas.focus());
 applyLanguage("en"); resetGame(); requestAnimationFrame(loop);
