@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: #132238; color: #fff; font-family: "Trebuchet MS", "Microsoft YaHei", sans-serif; }
+body { display: grid; place-items: center; padding: 12px; overflow: hidden; }
+.game-shell { position: relative; width: min(100vw, 1100px); }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.brand { font-size: clamp(22px, 5vw, 38px); font-weight: 900; color: #ffd56b; text-shadow: 3px 3px #26304f; }
+.hint, .instructions { color: #cfe8ff; font-size: 14px; }
+#gameCanvas { width: 100%; aspect-ratio: 16 / 9; display: block; border: 4px solid #f9d66d; border-radius: 18px; background: #8fd6ff; box-shadow: 0 20px 60px rgba(0,0,0,.35); image-rendering: pixelated; touch-action: none; }
+.hud { position: absolute; top: 58px; left: 14px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: calc(100% - 28px); padding: 8px 10px; border-radius: 16px; background: rgba(18, 30, 58, .78); border: 2px solid rgba(255,255,255,.35); font-weight: 800; font-size: clamp(12px, 2.4vw, 16px); }
+.portrait, .avatar { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #fff; display: inline-block; }
+.portrait { cursor: pointer; }
+.blue-avatar { background: radial-gradient(circle at 50% 32%, #aee8ff 0 18%, #287ee8 19% 55%, #113f99 56%); }
+.pink-avatar { background: radial-gradient(circle at 50% 32%, #ffe1f0 0 18%, #ff72ba 19% 55%, #ab2c7a 56%); }
+.power-text.ready { color: #ffe66d; text-shadow: 0 0 8px #fff; }
+.panel { background: rgba(13, 24, 48, .94); border: 3px solid #ffd56b; border-radius: 22px; box-shadow: 0 20px 70px rgba(0,0,0,.45); padding: clamp(18px, 4vw, 32px); text-align: center; }
+.overlay { position: absolute; inset: 74px 24px auto; z-index: 20; }
+.panel h1, .panel h2 { margin-top: 0; color: #ffd56b; }
+.character-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+.character-card { color: #fff; background: #25365d; border: 3px solid transparent; border-radius: 18px; padding: 14px; cursor: pointer; display: grid; justify-items: center; gap: 8px; }
+.character-card.selected { border-color: #ffd56b; background: #31528a; }
+.primary { border: 0; border-radius: 999px; padding: 12px 28px; color: #1d2750; background: linear-gradient(#fff08d, #ffba35); font-size: 18px; font-weight: 900; cursor: pointer; }
+.message { position: absolute; left: 50%; top: 50%; z-index: 30; transform: translate(-50%, -50%); width: min(520px, calc(100% - 32px)); }
+.hidden { display: none; }
+.touch-controls { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+.touch-controls button { min-height: 56px; border: 0; border-radius: 18px; background: #243f72; color: #fff; font-size: 24px; font-weight: 900; box-shadow: inset 0 -5px rgba(0,0,0,.25); }
+.touch-controls .jump { background: #d45ca2; }
+.instructions { margin-top: 8px; text-align: center; }
+@media (hover: none), (max-width: 800px) { body { padding: 6px; } .topbar { margin-bottom: 4px; } .hint { display: none; } .hud { top: 48px; } .touch-controls { display: grid; } .overlay { inset: 58px 10px auto; } .character-picker { grid-template-columns: 1fr; } }
+.lang-toggle { border: 2px solid #ffd56b; border-radius: 999px; padding: 8px 14px; color: #ffd56b; background: rgba(18, 30, 58, .85); font-weight: 900; cursor: pointer; }
