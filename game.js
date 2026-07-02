@@ -116,8 +116,10 @@ function drawPlayer(t){ const p=player, blue=selectedHero==="blue"; if(p.invinci
 function loop(time){ const dt=Math.min(.033,(time-lastTime)/1000||0); lastTime=time; update(dt); draw(); }
 
 document.querySelectorAll(".character-card").forEach(btn => btn.addEventListener("click",()=>{ selectedHero=btn.dataset.hero; document.querySelectorAll(".character-card").forEach(b=>b.classList.remove("selected")); btn.classList.add("selected"); ui.avatarButton.className=`portrait ${selectedHero}-avatar`; }));
-ui.startButton.onclick=()=>{ ui.startPanel.classList.add("hidden"); resetGame(); };
+function startGame(){ ui.startPanel.classList.add("hidden"); resetGame(); canvas.focus(); }
+ui.startButton.onclick=startGame;
 ui.restartButton.onclick=resetGame; ui.avatarButton.ondblclick=activatePower; ui.languageButton.onclick=()=>applyLanguage(currentLang === "en" ? "zh" : "en");
-addEventListener("keydown",e=>{ keys[e.code]=true; if(e.code==="KeyE") activatePower(); }); addEventListener("keyup",e=>keys[e.code]=false);
-[["leftBtn","ArrowLeft"],["rightBtn","ArrowRight"],["downBtn","ArrowDown"],["jumpBtn","Space"]].forEach(([id,code])=>{ const b=document.getElementById(id); b.onpointerdown=e=>{e.preventDefault(); keys[code]=true;}; b.onpointerup=b.onpointercancel=()=>keys[code]=false; });
-applyLanguage("en"); resetGame(); running=false; draw();
+addEventListener("keydown",e=>{ if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefault(); keys[e.code]=true; if(!running && ["Space","ArrowUp","ArrowLeft","ArrowRight","KeyA","KeyD","KeyW"].includes(e.code)) running = true; if(e.code==="KeyE") activatePower(); }); addEventListener("keyup",e=>keys[e.code]=false);
+[["leftBtn","ArrowLeft"],["rightBtn","ArrowRight"],["downBtn","ArrowDown"],["jumpBtn","Space"]].forEach(([id,code])=>{ const b=document.getElementById(id); b.onpointerdown=e=>{e.preventDefault(); running = true; keys[code]=true;}; b.onpointerup=b.onpointercancel=()=>keys[code]=false; });
+canvas.addEventListener("pointerdown",()=>canvas.focus());
+applyLanguage("en"); resetGame(); draw();
