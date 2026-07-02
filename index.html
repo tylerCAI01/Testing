@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Lumi Harbor - Level 1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand">Lumi Harbor</div>
+      <div class="hint" data-i18n="topHint">Original pixel platformer · Phone / iPad / PC ready</div>
+      <button id="languageButton" class="lang-toggle" type="button">中文</button>
+    </header>
+
+    <section id="startPanel" class="panel overlay">
+      <h1 data-i18n="title">Lumi Harbor: Dawn Harbor</h1>
+      <p data-i18n="intro">Jump through a Nordic harbor-inspired pixel district, collect energy orbs and gems, avoid gulls, pigeons, and traps, then reach the central station gate.</p>
+      <div class="character-picker" aria-label="Choose character" data-i18n-attr="aria-label:chooseCharacter">
+        <button class="character-card selected" data-hero="blue" type="button">
+          <span class="avatar blue-avatar"></span>
+          <strong data-i18n="blueName">Blue Nova</strong>
+          <small data-i18n="blueDesc">Confident entrance, idle hair fix and nods.</small>
+        </button>
+        <button class="character-card" data-hero="pink" type="button">
+          <span class="avatar pink-avatar"></span>
+          <strong data-i18n="pinkName">Pink Stella</strong>
+          <small data-i18n="pinkDesc">Waves hello, idle pose and wink.</small>
+        </button>
+      </div>
+      <button id="startButton" class="primary" type="button" data-i18n="start">Start Level 1</button>
+    </section>
+
+    <section class="hud" aria-label="Game status" data-i18n-attr="aria-label:gameStatus">
+      <button id="avatarButton" class="portrait blue-avatar" title="Double-click after 10 energy to activate 5s Golden Shield" data-i18n-attr="title:avatarTip" type="button"></button>
+      <div><span data-i18n="lifeLabel">Life</span>: <span id="lifeText">3</span></div>
+      <div><span data-i18n="scoreLabel">Score</span>: <span id="scoreText">0</span></div>
+      <div><span data-i18n="gemLabel">Gems</span>: <span id="gemText">0</span></div>
+      <div><span data-i18n="energyLabel">Energy</span>: <span id="energyText">0/10</span></div>
+      <div id="powerText" class="power-text">Golden Shield not ready</div>
+    </section>
+
+    <canvas id="gameCanvas" width="960" height="540" aria-label="Lumi Harbor game canvas" data-i18n-attr="aria-label:canvasLabel"></canvas>
+
+    <div class="touch-controls" aria-label="Touch controls" data-i18n-attr="aria-label:touchControls">
+      <button id="leftBtn" type="button">◀</button>
+      <button id="downBtn" type="button">▼</button>
+      <button id="rightBtn" type="button">▶</button>
+      <button id="jumpBtn" class="jump" type="button" data-i18n="jump">Jump</button>
+    </div>
+
+    <section id="messagePanel" class="panel message hidden" role="status" aria-live="polite">
+      <h2 id="messageTitle"></h2>
+      <p id="messageText"></p>
+      <button id="restartButton" class="primary" type="button" data-i18n="restart">Play Again</button>
+    </section>
+
+    <footer class="instructions">
+      <span data-i18n="instructions">PC: A/D or ←/→ to move, W/Space/↑ to jump, S/↓ to crouch. Mobile: use on-screen buttons. Double-click the avatar after 10 energy to activate Golden Shield.</span>
+    </footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
