@@ -21,7 +21,7 @@ body { display: grid; place-items: center; padding: 12px; overflow: hidden; }
 .primary { border: 0; border-radius: 999px; padding: 12px 28px; color: #1d2750; background: linear-gradient(#fff08d, #ffba35); font-size: 18px; font-weight: 900; cursor: pointer; }
 .message { position: absolute; left: 50%; top: 50%; z-index: 30; transform: translate(-50%, -50%); width: min(520px, calc(100% - 32px)); }
 .hidden { display: none; }
-.touch-controls { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+.touch-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
 .touch-controls button { min-height: 56px; border: 0; border-radius: 18px; background: #243f72; color: #fff; font-size: 24px; font-weight: 900; box-shadow: inset 0 -5px rgba(0,0,0,.25); }
 .touch-controls .jump { background: #d45ca2; }
 .instructions { margin-top: 8px; text-align: center; }
