@@ -62,8 +62,14 @@ const level = {
 
 let player, enemies, orbs, gems, particles;
 function resetGame() {
-  player = {x:80,y:340,w:42,h:84,vx:0,vy:0,life:3,score:0,energy:0,gems:wealthGems,onGround:false,crouch:false,invincible:false,powerTimer:0,hitTimer:0,spawnTimer:2,idleTimer:0,face:1};
-  enemies = [{x:760,y:386,w:38,h:28,type:"pigeon",vx:-0.35,home:760,range:90},{x:1640,y:312,w:42,h:32,type:"seagull",vx:-0.55,home:1640,range:360},{x:2460,y:276,w:42,h:32,type:"seagull",vx:-0.5,home:2460,range:320}];
+  player = {x:80,y:340,w:42,h:84,vx:0,vy:0,life:3,score:0,energy:0,gems:wealthGems,onGround:false,crouch:false,sliding:false,slideTimer:0,invincible:false,powerTimer:0,hitTimer:0,spawnTimer:2,idleTimer:0,face:1};
+  const pigeonColors = ["#77707f", "#8f8895", "#6f7588", "#9a9290"];
+  enemies = [
+    {x:760,y:420,w:42,h:34,type:"pigeon",vx:0,home:760,range:120,hp:1,mode:null,deadTimer:0,color:pigeonColors[Math.floor(Math.random()*pigeonColors.length)],eat:0},
+    {x:1330,y:420,w:42,h:34,type:"pigeon",vx:0,home:1330,range:120,hp:1,mode:null,deadTimer:0,color:pigeonColors[Math.floor(Math.random()*pigeonColors.length)],eat:1},
+    {x:1640,y:312,w:42,h:32,type:"seagull",vx:-0.55,home:1640,range:360,hp:1,deadTimer:0},
+    {x:2460,y:276,w:42,h:32,type:"seagull",vx:-0.5,home:2460,range:320,hp:1,deadTimer:0}
+  ];
   orbs = Array.from({length:14},(_,i)=>({x:320+i*190,y:260+(i%3)*55,r:12,taken:false}));
   gems = Array.from({length:10},(_,i)=>({x:430+i*260,y:320-(i%2)*55,w:18,h:18,taken:false}));
   particles = []; cameraX = 0; running = true; ui.messagePanel.classList.add("hidden"); updateHud();
@@ -76,22 +82,40 @@ function activatePower(){ if(player.energy >= 10 && !player.invincible){ player.
 function update(dt){
   if(!running) return;
   player.spawnTimer = Math.max(0, player.spawnTimer - dt); player.idleTimer += dt;
-  const move = (keys.ArrowRight||keys.KeyD?1:0) - (keys.ArrowLeft||keys.KeyA?1:0); player.crouch = keys.ArrowDown||keys.KeyS;
-  const maxSpeed = player.crouch ? 1.35 * sensitivity : 3.15 * sensitivity;
-  player.vx += (move * maxSpeed - player.vx) * 0.22;
+  const move = (keys.ArrowRight||keys.KeyD?1:0) - (keys.ArrowLeft||keys.KeyA?1:0);
+  const crouchKey = keys.ArrowDown||keys.KeyS;
+  const jumpKey = keys.Space||keys.ArrowUp||keys.KeyW;
+  const conflict = crouchKey && jumpKey;
+  player.crouch = !conflict && crouchKey && player.onGround;
+  player.sliding = player.crouch && Math.abs(player.vx) > 0.65 && move !== 0;
+  if(player.sliding) player.slideTimer = 0.28;
+  else player.slideTimer = Math.max(0, player.slideTimer - dt);
+  const maxSpeed = player.crouch ? (player.sliding ? 3.55 : 1.05) * sensitivity : 3.15 * sensitivity;
+  player.vx += (move * maxSpeed - player.vx) * (player.sliding ? 0.12 : 0.22);
   if(Math.abs(player.vx) < 0.04) player.vx = 0;
   if(move) player.face = move;
-  if((keys.Space||keys.ArrowUp||keys.KeyW) && player.onGround){ player.vy = -12.8; player.onGround = false; }
+  if(!conflict && jumpKey && player.onGround){ player.vy = -12.8; player.onGround = false; }
   player.vy += gravity; player.x += player.vx; player.y += player.vy; player.x = Math.max(0, Math.min(worldWidth-player.w, player.x)); player.onGround = false;
   for(const p of level.platforms){ if(rects(player,p) && player.vy >= 0 && player.y + player.h - player.vy <= p.y + 8){ player.y = p.y-player.h; player.vy = 0; player.onGround = true; }}
   if(player.y > H + 80) hurt(true);
   for(const o of orbs) if(!o.taken && Math.hypot(player.x+20-o.x, player.y+28-o.y) < 34){ o.taken = true; player.score += 50; player.energy++; collectGlow(o.x,o.y,"#ffd84d"); if(player.energy>=10) player.energy=10; updateHud(); }
   for(const g of gems) if(!g.taken && rects(player,g)){ g.taken = true; player.gems++; player.score += 100; localStorage.setItem("lumiGems", player.gems); collectGlow(g.x,g.y,"#9ffcff"); updateHud(); }
   for(const e of enemies){
-    e.x += e.vx;
-    if(e.type === "seagull" && e.x < e.home - e.range) e.x = e.home + e.range;
-    if(e.type === "pigeon" && Math.abs(e.x-e.home)>e.range) e.vx *= -1;
-    if(rects(player,e)) player.invincible ? smash(e) : hurt(false);
+    if(e.deadTimer > 0){ e.deadTimer -= dt; continue; }
+    if(e.hp <= 0) continue;
+    if(e.type === "seagull"){
+      e.x += e.vx;
+      if(e.x < e.home - e.range) e.x = e.home + e.range;
+    } else if(e.type === "pigeon"){
+      e.eat += dt;
+      if(!e.mode && Math.abs(e.x-player.x) < 210){ e.mode = Math.random() < 0.65 ? "walk" : "fly"; e.vx = Math.sign(player.x-e.x || -1) * (e.mode === "walk" ? 0.42 : 0.68); }
+      if(e.mode === "walk") e.x += e.vx;
+      if(e.mode === "fly"){ e.x += e.vx; e.y += Math.sin(performance.now()/170 + e.x*.02) * 0.45; }
+    }
+    if(rects(player,e)){
+      if(player.invincible || player.sliding || player.slideTimer > 0) defeatEnemy(e);
+      else hurt(false);
+    }
   }
   for(const t of level.traps) if(!t.smashed && rects(player,t)){ if(player.invincible && (t.type==="car"||t.type==="train")){ t.smashed=true; collectGlow(t.x+t.w/2,t.y,"#ccc"); } else hurt(t.type==="pit"||t.type==="water"); }
   if(player.invincible){ player.powerTimer -= dt; if(player.powerTimer <= 0) player.invincible = false; }
@@ -100,7 +124,8 @@ function update(dt){
   particles = particles.filter(p => --p.life > 0).map(p => (p.x+=p.vx, p.y+=p.vy, p.vy+=.12, p));
   cameraX = Math.max(0, Math.min(worldWidth-W, player.x - W*0.42)); updateHud();
 }
-function smash(e){ e.x = -9999; player.score += 120; collectGlow(player.x,player.y,"#ffe66d"); updateHud(); }
+function smash(e){ defeatEnemy(e); }
+function defeatEnemy(e){ if(e.hp <= 0) return; e.hp = 0; e.deadTimer = 2.5; player.score += e.type === "pigeon" ? 160 : 120; collectGlow(e.x+e.w/2,e.y+e.h/2,e.type === "pigeon" ? "#f2f2f2" : "#ffe66d"); updateHud(); }
 function hurt(fall){ if(player.hitTimer>0 || player.invincible) return; player.life--; player.hitTimer=1.1; if(fall){ player.x=Math.max(80, cameraX+70); player.y=250; player.vy=0; } if(player.life<=0) endGame(false); updateHud(); }
 function endGame(win){ running=false; if(win) localStorage.setItem("lumiGems", player.gems); ui.messageTitle.textContent = win ? translate("winTitle") : translate("loseTitle"); ui.messageText.textContent = win ? translate("winText")(player.gems, player.score) : translate("loseText"); ui.messagePanel.classList.remove("hidden"); }
 function updateHud(){ ui.life.textContent=player.life; ui.score.textContent=player.score; ui.gem.textContent=player.gems; ui.energy.textContent=`${player.energy}/10`; ui.power.textContent = player.invincible ? `${translate("active")} ${player.powerTimer.toFixed(1)}s` : (player.energy>=10 ? translate("ready") : translate("notReady")); ui.power.classList.toggle("ready", player.energy>=10||player.invincible); }
@@ -120,29 +145,62 @@ function draw(){
 function drawScenery(){ ctx.save(); ctx.translate(-cameraX*.35,0); for(let x=-100;x<worldWidth;x+=620){ ctx.fillStyle="#cf4b54"; ctx.fillRect(x+60,260,140,160); ctx.fillStyle="#7b2d3b"; ctx.beginPath(); ctx.moveTo(x+40,260); ctx.lineTo(x+130,185); ctx.lineTo(x+220,260); ctx.fill(); ctx.fillStyle="#f5d49a"; ctx.fillRect(x+360,300,160,110); ctx.fillStyle="#34506f"; ctx.fillRect(x+382,325,32,48); ctx.fillRect(x+450,325,32,48); ctx.fillStyle="#2f4467"; ctx.fillRect(x+520,365,150,22); ctx.fillStyle="#fff"; ctx.fillText("LUMINKI",x+530,360); } ctx.restore(); }
 function drawExit(e){ ctx.fillStyle="#2e436b"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillStyle="#f0c36a"; ctx.fillRect(e.x+18,e.y+28,e.w-36,e.h-28); ctx.fillStyle="#22314f"; ctx.fillRect(e.x+45,e.y+70,60,90); }
 function drawTrap(t){ if(t.smashed){ ctx.fillStyle="rgba(170,170,170,.35)"; ctx.fillRect(t.x,t.y,t.w,t.h); return; } ctx.fillStyle = t.type==="water" ? "#2fb8ff" : t.type==="car" ? "#e94b4b" : t.type==="train" ? "#58677a" : "#1b2035"; ctx.fillRect(t.x,t.y,t.w,t.h); }
-function drawEnemy(e,t){ ctx.fillStyle = e.type==="seagull" ? "#f4f7fb" : "#9aa0aa"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillStyle="#333"; ctx.fillRect(e.x+26,e.y+8,4,4); ctx.fillStyle="#ffb23c"; ctx.fillRect(e.x+e.w-2,e.y+12,10,5); }
+function drawEnemy(e,t){
+  if(e.hp <= 0){ drawEnemyDefeat(e,t); return; }
+  if(e.type === "pigeon") return drawPigeon(e,t);
+  ctx.fillStyle = "#f4f7fb"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillStyle="#333"; ctx.fillRect(e.x+26,e.y+8,4,4); ctx.fillStyle="#ffb23c"; ctx.fillRect(e.x+e.w-2,e.y+12,10,5);
+}
+function drawPigeon(e,t){
+  const eat = !e.mode && Math.sin(e.eat*8) > 0, fly = e.mode === "fly";
+  const x=e.x, y=e.y + (fly ? Math.sin(t*8)*2 : 0), c=e.color || "#837b8a";
+  ctx.fillStyle="#282431"; ctx.fillRect(x+5,y+4,20,18); ctx.fillRect(x+21,y+10,18,14);
+  ctx.fillStyle=c; ctx.fillRect(x+8,y+7,18,18); ctx.fillRect(x+22,y+13,17,13);
+  ctx.fillStyle="#b9b7c0"; ctx.fillRect(x+10,y+22,18,7); ctx.fillRect(x+25,y+24,10,4);
+  ctx.fillStyle="#11a58f"; ctx.fillRect(x+17,y+18,8,5); ctx.fillStyle="#9a4aa3"; ctx.fillRect(x+14,y+22,9,5);
+  ctx.fillStyle="#f5b22d"; ctx.fillRect(x, y+14,10,5); ctx.fillStyle="#111"; ctx.fillRect(x+13,y+10,4,4);
+  if(eat){ ctx.fillStyle="#7e4d3f"; ctx.fillRect(x-4,y+31,4,4); ctx.fillRect(x+6,y+34,4,4); }
+  if(fly){ ctx.fillStyle=c; ctx.fillRect(x+3,y+24,18,10); ctx.fillRect(x+27,y+4,12,16); }
+  ctx.fillStyle="#b45668"; ctx.fillRect(x+13,y+29,5,11); ctx.fillRect(x+27,y+29,5,11);
+}
+function drawEnemyDefeat(e,t){
+  if(e.deadTimer <= 0) return;
+  const flash = Math.floor(e.deadTimer*12)%2===0;
+  ctx.globalAlpha = Math.min(1, e.deadTimer);
+  ctx.fillStyle = flash ? "#ff4545" : "#ffffff"; ctx.fillRect(e.x,e.y,e.w,e.h);
+  ctx.fillStyle="rgba(220,220,220,.65)"; ctx.fillRect(e.x+14,e.y+10,18,14); ctx.fillRect(e.x+22,e.y+4,10,9); ctx.fillRect(e.x+7,e.y+18,10,8);
+  ctx.fillStyle="#f2f2f2"; ctx.fillRect(e.x+6,e.y-10+(2.5-e.deadTimer)*-10,5,3); ctx.fillRect(e.x+29,e.y-6+(2.5-e.deadTimer)*-12,6,3); ctx.fillRect(e.x+20,e.y-2+(2.5-e.deadTimer)*-9,4,3);
+  ctx.globalAlpha = 1;
+}
 function drawPlayer(t){
-  const p=player, blue=selectedHero==="blue", x=p.x, y=p.y, dir=p.face;
-  if(p.invincible){ ctx.strokeStyle="#ffe66d"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(x+21,y+31,46+Math.sin(t*8)*4,0,7); ctx.stroke(); ctx.strokeStyle=`hsl(${t*160%360},100%,70%)`; ctx.stroke(); }
+  const p=player, blue=selectedHero==="blue", x=p.x, y=p.y, dir=p.face, crouch=p.crouch, slide=p.sliding || p.slideTimer>0;
+  const bodyY = y + (slide ? 20 : crouch ? 13 : 0), legY = y + (slide ? 70 : crouch ? 66 : 62);
+  if(p.invincible){ ctx.strokeStyle="#ffe66d"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(x+21,y+41,46+Math.sin(t*8)*4,0,7); ctx.stroke(); ctx.strokeStyle=`hsl(${t*160%360},100%,70%)`; ctx.stroke(); }
   ctx.save(); if(dir < 0){ ctx.translate(x+p.w,0); ctx.scale(-1,1); } else ctx.translate(x,0);
   if(blue){
-    ctx.fillStyle="#8d1d28"; ctx.fillRect(10,y-7,24,10); ctx.fillRect(5,y,34,10);
-    ctx.fillStyle="#dff1e6"; ctx.fillRect(14,y+7,28,8);
-    ctx.fillStyle="#f2cda8"; ctx.fillRect(8,y+10,27,26);
-    ctx.fillStyle="#15264d"; ctx.fillRect(5,y+14,10,8); ctx.fillRect(26,y+14,14,8); ctx.fillRect(8,y+36,28,8);
-    ctx.fillStyle="#050712"; ctx.fillRect(20,y+22,6,10); ctx.fillRect(32,y+23,5,11); ctx.fillRect(17,y+40,22,24);
-    ctx.fillStyle="#2d72d8"; ctx.fillRect(0,y+36,12,24); ctx.fillRect(31,y+36,11,23); ctx.fillStyle="#78ad5c"; ctx.fillRect(3,y+31,8,28);
-    ctx.fillStyle="#f2cda8"; ctx.fillRect(-4,y+56,7,10); ctx.fillRect(42,y+47,8,7);
-    ctx.fillStyle="#11131c"; ctx.fillRect(11,y+62,12,18); ctx.fillRect(24,y+62,12,18); ctx.fillStyle="#a9272e"; ctx.fillRect(11,y+78,12,5); ctx.fillRect(24,y+78,12,5);
+    ctx.fillStyle="#8d1d28"; ctx.fillRect(10,bodyY-7,24,10); ctx.fillRect(5,bodyY,34,10);
+    ctx.fillStyle="#dff1e6"; ctx.fillRect(14,bodyY+7,28,8);
+    ctx.fillStyle="#f2cda8"; ctx.fillRect(8,bodyY+10,27,26);
+    ctx.fillStyle="#15264d"; ctx.fillRect(5,bodyY+14,10,8); ctx.fillRect(26,bodyY+14,14,8); ctx.fillRect(8,bodyY+36,28,8);
+    ctx.fillStyle="#050712"; ctx.fillRect(20,bodyY+22,6,10); ctx.fillRect(32,bodyY+23,5,11); ctx.fillRect(17,bodyY+40,22,24);
+    ctx.fillStyle="#2d72d8"; ctx.fillRect(0,bodyY+36,12,24); ctx.fillRect(31,bodyY+36,11,23); ctx.fillStyle="#78ad5c"; ctx.fillRect(3,bodyY+31,8,28);
+    ctx.fillStyle="#f2cda8"; ctx.fillRect(-4,bodyY+56,7,10); ctx.fillRect(42,bodyY+47,8,7);
+    ctx.fillStyle="#11131c";
+    if(slide){ ctx.fillRect(4,legY,29,8); ctx.fillRect(25,legY-8,20,8); }
+    else if(crouch){ ctx.fillRect(8,legY-8,16,8); ctx.fillRect(24,legY-3,17,8); }
+    else { ctx.fillRect(11,legY,12,18); ctx.fillRect(24,legY,12,18); }
+    ctx.fillStyle="#a9272e"; ctx.fillRect(10,legY+(slide?7:crouch?4:16),13,5); ctx.fillRect(26,legY+(slide?-4:crouch?9:16),13,5);
   } else {
-    ctx.fillStyle="#f0c84b"; ctx.fillRect(6,y-3,30,12); ctx.fillRect(2,y+7,38,26); ctx.fillStyle="#ffd9b1"; ctx.fillRect(10,y+10,24,25);
-    ctx.fillStyle="#1d2440"; ctx.fillRect(16,y+20,4,5); ctx.fillRect(28,y+20,4,5); ctx.fillStyle="#ff6fb8"; ctx.fillRect(6,y+36,34,26); ctx.fillStyle="#ffd9b1"; ctx.fillRect(-2,y+42,8,14); ctx.fillRect(40,y+42,8,14);
-    ctx.fillStyle="#8b2f76"; ctx.fillRect(11,y+62,10,17); ctx.fillRect(26,y+62,10,17); ctx.fillStyle="#ffb3d6"; ctx.fillRect(11,y+78,10,5); ctx.fillRect(26,y+78,10,5);
+    ctx.fillStyle="#f0c84b"; ctx.fillRect(6,bodyY-3,30,12); ctx.fillRect(2,bodyY+7,38,26); ctx.fillStyle="#ffd9b1"; ctx.fillRect(10,bodyY+10,24,25);
+    ctx.fillStyle="#1d2440"; ctx.fillRect(16,bodyY+20,4,5); ctx.fillRect(28,bodyY+20,4,5); ctx.fillStyle="#ff6fb8"; ctx.fillRect(6,bodyY+36,34,26); ctx.fillStyle="#ffd9b1"; ctx.fillRect(-2,bodyY+42,8,14); ctx.fillRect(40,bodyY+42,8,14);
+    ctx.fillStyle="#8b2f76";
+    if(slide){ ctx.fillRect(5,legY,27,8); ctx.fillRect(27,legY-8,18,8); }
+    else if(crouch){ ctx.fillRect(9,legY-8,15,8); ctx.fillRect(25,legY-3,16,8); }
+    else { ctx.fillRect(11,legY,10,17); ctx.fillRect(26,legY,10,17); }
+    ctx.fillStyle="#ffb3d6"; ctx.fillRect(11,legY+(slide?7:crouch?4:16),10,5); ctx.fillRect(28,legY+(slide?-4:crouch?9:16),10,5);
   }
   ctx.restore();
-  if(p.crouch){ ctx.fillStyle="rgba(255,255,255,.18)"; ctx.fillRect(p.x+4,p.y+50,p.w-8,10); }
   if(p.spawnTimer>0){ ctx.fillStyle="#fff"; ctx.fillRect(p.x-8,p.y-18,54,8); }
-  if(!p.vx && p.onGround && Math.sin(p.idleTimer*2)>0.85){ ctx.fillStyle="#fff"; ctx.fillText(blue?translate("idleBlue"):translate("idlePink"),p.x-6,p.y-8); }
+  if(!p.vx && p.onGround && !crouch && Math.sin(p.idleTimer*2)>0.85){ ctx.fillStyle="#fff"; ctx.fillText(blue?translate("idleBlue"):translate("idlePink"),p.x-6,p.y-8); }
 }
 function loop(time){ const dt=Math.min(.033,(time-lastTime)/1000||0); lastTime=time; update(dt); draw(); requestAnimationFrame(loop); }
 
