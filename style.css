@@ -9,8 +9,8 @@ body { display: grid; place-items: start center; padding: 12px; overflow-x: hidd
 .hud { position: absolute; top: 58px; left: 14px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: calc(100% - 28px); padding: 8px 10px; border-radius: 16px; background: rgba(18, 30, 58, .78); border: 2px solid rgba(255,255,255,.35); font-weight: 800; font-size: clamp(12px, 2.4vw, 16px); }
 .portrait, .avatar { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #fff; display: inline-block; }
 .portrait { cursor: pointer; }
-.blue-avatar { background: radial-gradient(circle at 50% 32%, #aee8ff 0 18%, #287ee8 19% 55%, #113f99 56%); }
-.pink-avatar { background: radial-gradient(circle at 50% 32%, #ffe1f0 0 18%, #ff72ba 19% 55%, #ab2c7a 56%); }
+.blue-avatar { background: radial-gradient(circle at 50% 20%, #11131c 0 10%, transparent 11%), radial-gradient(circle at 50% 32%, #aee8ff 0 18%, #287ee8 19% 55%, #113f99 56%); }
+.pink-avatar { background: radial-gradient(circle at 36% 30%, #2d8cff 0 5%, transparent 6%), radial-gradient(circle at 62% 30%, #2d8cff 0 5%, transparent 6%), radial-gradient(circle at 50% 24%, #f6d65e 0 22%, #ffe1f0 23% 34%, #ff72ba 35% 62%, #ab2c7a 63%); }
 .power-text.ready { color: #ffe66d; text-shadow: 0 0 8px #fff; }
 .panel { background: rgba(13, 24, 48, .94); border: 3px solid #ffd56b; border-radius: 22px; box-shadow: 0 20px 70px rgba(0,0,0,.45); padding: clamp(18px, 4vw, 32px); text-align: center; }
 .overlay { position: absolute; inset: 74px 24px auto; z-index: 20; max-height: calc(100vh - 150px); overflow: auto; }

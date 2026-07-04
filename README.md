@@ -8,12 +8,12 @@ An original browser platformer prototype with English as the default language an
 
 - English UI is shown by default; the top-right language button switches between English and Chinese.
 - Players can choose between two original cartoon heroes: Blue Nova or Pink Stella.
-- Level 1 uses an original Nordic harbor-inspired pixel district with sunrise/sunset colors, red church-like rooftops, harbor/station scenery, and a fictional `LUMINKI` sign.
-- The hero can move left/right, jump, crouch, and show small idle animations such as hair fixing or wink text.
-- Golden energy orbs increase the energy meter; after collecting 10 energy, double-click the avatar or press `E` to activate a 5-second Golden Shield.
+- Level 1 uses an original Helsinki-inspired pixel district with sunrise/sunset colors, brick church texture, row-house street scenery, grass clumps, a train/station backdrop, and fictional `LUMINKI` / `CENTRAL` signs.
+- The hero can move left/right, short-hop, double-jump, slide-kick, and show richer idle animations like hat-off hair fixing, cool poses, and blue-eye winks.
+- Golden energy orbs increase the energy meter; Level 1 has 5 golden energy orbs; collect all 5, then double-click the avatar or press `E` to activate a 5-second Golden Shield.
 - Golden Shield adds a gold/rainbow aura and can smash heavy train/car traps.
 - Blue gems increase wealth and are persisted with `localStorage`.
-- Enemies include pigeons and gulls; traps include pits, cracks, water, cars, and trains.
+- Level 1 uses one-pass pigeons on the grass; slide-kicking a pigeon triggers a faster red/white defeat flash with larger feathers. Traps include pits, cracks, water, cars, and trains.
 - Reaching the station gate clears the level; losing all life ends the run.
 
 ## Controls / 操作方式
@@ -21,14 +21,14 @@ An original browser platformer prototype with English as the default language an
 ### PC / 电脑
 
 - `A / D` or `← / →`: move
-- `W`, `Space`, or `↑`: jump
-- `S` or `↓`: crouch
-- After 10 energy: double-click the top-left avatar, or press `E`, to activate Golden Shield
+- `W`, `Space`, or `↑`: jump / double-jump
+- `S` or `↓`: slide/crouch
+- After 5 energy: double-click the top-left avatar, or press `E`, to activate Golden Shield
 
 ### Phone / iPad / 手机和平板
 
 - Use the on-screen buttons for left, right, crouch, and jump.
-- After 10 energy, double-click the top-left avatar to activate Golden Shield.
+- After 5 energy, double-tap the top-left avatar to activate Golden Shield.
 
 ## Files / 文件结构
 

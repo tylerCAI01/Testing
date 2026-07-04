@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Lumi Harbor - Level 1</title>
-  <link rel="stylesheet" href="style.css?v=20260703-slide1" />
+  <link rel="stylesheet" href="style.css?v=20260704-city2" />
 </head>
 <body>
   <main class="game-shell">
@@ -38,11 +38,11 @@
     </section>
 
     <section class="hud" aria-label="Game status" data-i18n-attr="aria-label:gameStatus">
-      <button id="avatarButton" class="portrait blue-avatar" title="Double-click after 10 energy to activate 5s Golden Shield" data-i18n-attr="title:avatarTip" type="button"></button>
+      <button id="avatarButton" class="portrait blue-avatar" title="Double-click after 5 energy or press E to activate 5s Golden Shield" data-i18n-attr="title:avatarTip" type="button"></button>
       <div><span data-i18n="lifeLabel">Life</span>: <span id="lifeText">3</span></div>
       <div><span data-i18n="scoreLabel">Score</span>: <span id="scoreText">0</span></div>
       <div><span data-i18n="gemLabel">Gems</span>: <span id="gemText">0</span></div>
-      <div><span data-i18n="energyLabel">Energy</span>: <span id="energyText">0/10</span></div>
+      <div><span data-i18n="energyLabel">Energy</span>: <span id="energyText">0/5</span></div>
       <div id="powerText" class="power-text">Golden Shield not ready</div>
     </section>
 
@@ -62,9 +62,9 @@
     </section>
 
     <footer class="instructions">
-      <span data-i18n="instructions">PC: A/D or ←/→ to move, W/Space/↑ to jump, S/↓ to crouch. Mobile: use on-screen buttons. Double-click the avatar after 10 energy to activate Golden Shield.</span>
+      <span data-i18n="instructions">PC: A/D or ←/→ to move, W/Space/↑ to double-jump, S/↓ to slide, E for Golden Shield after 5 energy. Mobile: use buttons and double-tap the avatar.</span>
     </footer>
   </main>
-  <script src="game.js?v=20260703-slide1"></script>
+  <script src="game.js?v=20260704-city2"></script>
 </body>
 </html>
